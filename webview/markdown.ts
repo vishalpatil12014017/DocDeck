@@ -2,9 +2,12 @@ import '@milkdown/crepe/theme/common/style.css';
 import '@milkdown/crepe/theme/frame.css';
 import './markdown.css';
 import { Crepe } from '@milkdown/crepe';
+import { EditorView } from '@codemirror/view';
+import { defaultHighlightStyle, syntaxHighlighting } from '@codemirror/language';
 import { replaceAll } from '@milkdown/kit/utils';
 import { config, debounce, h, keepUndoInsideEditable, vscode } from './common';
 import { renderMermaid } from './mermaidRender';
+import { initViews } from './views';
 
 keepUndoInsideEditable();
 
@@ -20,6 +23,25 @@ let lastMarkdown = '';
 /** Full document text last sent to or received from VS Code. */
 let lastText = '';
 let crepe: Crepe | undefined;
+/** Set when the Raw pane changed the text while the WYSIWYG view was hidden; it reloads when shown. */
+let previewStale = false;
+
+const views = initViews({
+  loadRaw: () => {
+    sendEdit.flush();
+    views.setRaw({ text: lastText, readOnly: false, language: 'markdown' });
+  },
+  onRawEdit: (text) => {
+    lastText = text;
+    vscode.postMessage({ type: 'edit', text });
+    // In Split view the preview updates as you type; otherwise it catches up when shown.
+    if (views.previewVisible()) syncPreview(text);
+    else previewStale = true;
+  },
+  onShowPreview: () => {
+    if (previewStale) syncPreview(lastText);
+  },
+});
 
 function splitFrontMatter(text: string): string {
   const match = text.match(FRONT_MATTER);
@@ -30,6 +52,7 @@ function splitFrontMatter(text: string): string {
 const sendEdit = debounce((markdown: string) => {
   lastText = frontMatter + markdown;
   vscode.postMessage({ type: 'edit', text: lastText });
+  if (views.rawVisible()) views.setRaw({ text: lastText, readOnly: false, language: 'markdown' });
 }, 200);
 
 function resolveUrl(url: string): string {
@@ -61,7 +84,12 @@ async function init(text: string) {
     defaultValue: body,
     features: { [Crepe.Feature.AI]: false, [Crepe.Feature.TopBar]: false },
     featureConfigs: {
-      [Crepe.Feature.CodeMirror]: { renderPreview, previewOnlyByDefault: true },
+      // Crepe defaults code blocks to the One Dark theme; the preview is light, so use light colors.
+      [Crepe.Feature.CodeMirror]: {
+        renderPreview,
+        previewOnlyByDefault: true,
+        theme: [EditorView.theme({ '&': { color: '#1f2328' } }, { dark: false }), syntaxHighlighting(defaultHighlightStyle)],
+      },
       [Crepe.Feature.ImageBlock]: { proxyDomURL: resolveUrl },
       [Crepe.Feature.Placeholder]: { text: 'Start writing… (type / for commands)' },
     },
@@ -69,6 +97,7 @@ async function init(text: string) {
   await crepe.create();
   // Baseline is the editor's own serialization, so merely opening a file never marks it dirty.
   lastMarkdown = crepe.getMarkdown();
+  if (views.rawVisible()) views.setRaw({ text, readOnly: false, language: 'markdown' });
   crepe.on((listener) => {
     listener.markdownUpdated((_ctx, markdown) => {
       if (markdown === lastMarkdown) return;
@@ -78,13 +107,22 @@ async function init(text: string) {
   });
 }
 
+/** Loads text into the WYSIWYG editor without echoing it back as an edit. */
+function syncPreview(text: string) {
+  if (!crepe) return;
+  previewStale = false;
+  crepe.editor.action(replaceAll(splitFrontMatter(text)));
+  lastMarkdown = crepe.getMarkdown();
+}
+
+/** The document changed outside this webview (text editor, git, another tool). */
 function applyExternal(text: string) {
   if (!crepe || text === lastText) return;
   sendEdit.flush();
   lastText = text;
-  const body = splitFrontMatter(text);
-  crepe.editor.action(replaceAll(body));
-  lastMarkdown = crepe.getMarkdown();
+  if (views.rawVisible()) views.setRaw({ text, readOnly: false, language: 'markdown' });
+  if (views.previewVisible()) syncPreview(text);
+  else previewStale = true;
 }
 
 // Ctrl/Cmd+S: push pending edits before VS Code saves.

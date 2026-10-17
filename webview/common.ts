@@ -15,6 +15,11 @@ declare global {
 export const vscode = acquireVsCodeApi();
 export const config = window.__DOCDECK__;
 
+/** Merges into the webview's persisted state (setState alone would replace all of it). */
+export function updateState(patch: Record<string, unknown>): void {
+  vscode.setState({ ...(vscode.getState<Record<string, unknown>>() ?? {}), ...patch });
+}
+
 export function isDarkTheme(): boolean {
   const cls = document.body.classList;
   return cls.contains('vscode-dark') || cls.contains('vscode-high-contrast');

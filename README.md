@@ -1,64 +1,123 @@
 # DocDeck – PDF, Excel, Word, Markdown & Mermaid Viewer
 
-Open and edit common document formats directly inside **VS Code**, **Cursor** and **Antigravity**. Everything runs locally and works offline.
+Open PDFs, spreadsheets, Word documents, Markdown and Mermaid diagrams right inside **VS Code**, **Cursor** and **Antigravity**, without switching apps. View them, edit them and save them back, all offline.
 
-| File types | Editor | What you can do |
+![Markdown file open in DocDeck, with a rendered Mermaid diagram and table](media/screenshots/markdown.png)
+
+## Supported files
+
+| Files | What you get |
+| --- | --- |
+| `.pdf` | Fast PDF viewer with search, zoom and page navigation |
+| `.xlsx` `.xlsm` `.xls` `.ods` `.csv` `.tsv` | Spreadsheet editor with sheets, formulas and copy/paste |
+| `.docx` | Word document editor that saves back to `.docx` |
+| `.md` `.markdown` | WYSIWYG Markdown editor with live Mermaid diagrams |
+| `.mmd` `.mermaid` | Mermaid diagram viewer with SVG/PNG export |
+
+Click a file and it opens in DocDeck. Every editor has three tabs: **Preview**, **Raw** and **Split**.
+
+## PDF viewer
+
+![PDF report open in DocDeck](media/screenshots/pdf.png)
+
+- Zoom with the toolbar, **Ctrl/Cmd + mouse wheel** or **Ctrl/Cmd + `+` / `-`**. Fit to page or width.
+- Jump to any page, rotate pages, and select and copy text.
+- Search the whole document with **Ctrl/Cmd+F**, with every match highlighted.
+- Opens password-protected PDFs.
+- Reloads automatically when the file changes on disk, which is handy for generated reports.
+
+## Spreadsheets
+
+![Spreadsheet with a formula selected](media/screenshots/spreadsheet.png)
+
+- Handles large files smoothly (100,000+ rows).
+- Edit any cell: type to replace, **Enter** or **F2** to edit, **Tab** and the arrow keys to move.
+- The formula bar shows the formula behind each value, e.g. `=C4*D4`.
+- Copy and paste ranges to and from Excel or Google Sheets.
+- Right-click to insert or delete rows and columns. Drag column edges to resize.
+- Add, rename and delete sheets from the tabs at the bottom.
+- Full undo/redo, Save and Save As. Hot exit keeps unsaved changes if the editor closes.
+- CSV and TSV values are kept exactly as typed: leading zeros like `00123` and long numbers aren't reformatted.
+
+## Word documents
+
+![Word document open in DocDeck](media/screenshots/word.png)
+
+- A page-style editor with headings, bold, italic, underline, strikethrough, alignment, lists, quotes, links, images and tables.
+- Saves straight back to `.docx`.
+- Before overwriting a file for the first time, DocDeck asks whether to overwrite it or save a copy (see [Good to know](#good-to-know)).
+
+## Markdown
+
+- Edit Markdown like a document: type `/` for blocks, drag the handle to move them, and use the toolbar that appears on selected text.
+- Tables, task lists, LaTeX math and code blocks with syntax highlighting.
+- ` ```mermaid ` code blocks render as diagrams.
+- YAML front matter is kept untouched.
+- Images with relative paths, like `./images/diagram.png`, display. **Ctrl/Cmd+click** a link to open it; links to other `.md` files open in the editor.
+
+## Mermaid diagrams
+
+![Mermaid architecture diagram](media/screenshots/mermaid.png)
+
+- `.mmd` and `.mermaid` files render as diagrams and update as you type.
+- Drag to pan; **Ctrl/Cmd + wheel** to zoom; **Fit** and **1:1** buttons.
+- Syntax errors are shown under the diagram while the last good version stays visible.
+- **Export SVG** or **Export PNG** in one click.
+
+## Preview, Raw and Split
+
+![Split view: rendered Markdown on the left, source on the right](media/screenshots/split.png)
+
+- **Preview** is the rendered document. Previews always use a light theme, so documents look the way they will on paper, even when your editor is dark.
+- **Raw** is the file as plain text, with line numbers and search.
+  - **Markdown, Mermaid, CSV and TSV:** fully editable. Changes show up in Preview.
+  - **PDF, Excel and Word:** the raw bytes, read-only, since these are binary formats.
+- **Split** shows both side by side. Drag the divider to resize. Edits on either side appear on the other as you type.
+
+Press **Ctrl/Cmd+Alt+R** to switch between Preview and Raw.
+
+## Settings
+
+| Setting | Default | Description |
 | --- | --- | --- |
-| `.pdf` | PDF Viewer | Zoom (Ctrl/Cmd + wheel, `+`/`-`), fit page/width, rotate, page navigation, text selection, search (Ctrl/Cmd+F), password-protected files, auto-reload when the file changes |
-| `.xlsx` `.xlsm` `.xls` `.ods` `.csv` `.tsv` | Spreadsheet Editor | Virtualized grid (100k+ rows), edit cells and formulas, formula bar, copy/paste with Excel/Sheets, insert/delete rows & columns, add/rename/delete sheets, resize columns, undo/redo, save/save-as |
-| `.docx` | Word Document Editor | Paper-style rich text editor: headings, bold/italic/underline/strike, alignment, lists, quotes, links, images, tables. Saves back to `.docx` |
-| `.md` `.markdown` | Markdown WYSIWYG Editor | Notion-style editing (slash menu, drag handles, tables, task lists, LaTeX math, code blocks with syntax highlighting). Mermaid code blocks render as diagrams. YAML front matter is preserved |
-| `.mmd` `.mermaid` | Mermaid Diagram Viewer | Live rendering, pan & zoom, fit to window, export SVG/PNG, open source beside for editing |
+| `docdeck.defaultView` | `preview` | Which tab files open on: `preview`, `raw` or `split` |
+| `docdeck.docx.confirmBeforeSave` | `true` | Ask before overwriting a `.docx` file (see below) |
 
-## Usage
+To open a file type in the plain text editor instead, right-click a file → **Open With… → Configure default editor for '\*.md'** (or any other extension) and choose **Text Editor**. From a Markdown or Mermaid file, the **Open Source Text** button in the editor title bar opens the text editor beside DocDeck, and the two stay in sync.
 
-- PDF, spreadsheet, Word and Mermaid files open in the custom editor automatically.
-- **Markdown** files still open as text by default, so coding workflows aren't disrupted. To use the WYSIWYG editor, click the preview icon in the editor title bar, right-click the file → **Open in WYSIWYG Editor**, or use **Open With… → Markdown WYSIWYG Editor**. To make it the default: *Open With… → Configure default editor for '*.md'*.
-- From the Markdown or Mermaid editor, click the **Open Source Text** icon in the title bar to edit the raw text beside it. Both views stay in sync.
-- To go back to the plain text editor for any type, use **Reopen Editor With… → Text Editor**.
+## Good to know
 
-## Known limitations
+- **Word files are rebuilt when saved.** Text, headings, lists, tables, links, images and basic formatting are kept. Headers and footers, comments, tracked changes, custom styles and exact page layout are not. That's why DocDeck asks before overwriting the original and offers to save a copy instead.
+- **Spreadsheet formulas are saved, not calculated.** Existing results show as saved in the file. A new or edited formula shows its text until the file is opened in Excel, LibreOffice or Google Sheets. Cell colours and fonts aren't kept when saving `.xlsx`.
+- **CSV and TSV** files use their first sheet only.
+- **Markdown formatting may be tidied** after your first edit (for example `*` bullets become `-`). The content itself doesn't change.
 
-- **DOCX is "simple editing".** The file is converted to rich text when opened and rebuilt when saved. Text, headings, lists, tables, links, images and basic formatting survive. Headers/footers, comments, tracked changes, custom styles and exact page layout do not. You're asked before the original is overwritten the first time, and you can save a copy instead. Turn this prompt off with `docdeck.docx.confirmBeforeSave`.
-- **Spreadsheet formulas are stored, not calculated.** Existing formula results are shown as saved in the file. New or edited formulas show their text until the file is opened in Excel/LibreOffice/Sheets, which compute them. Cell styling (colors, fonts) is not preserved when saving `.xlsx`.
-- **CSV/TSV** values are kept exactly as typed (leading zeros, dates and long numbers aren't reformatted). Only the first sheet is used.
-- **Markdown** is re-serialized by the editor after your first edit, so cosmetic syntax may be normalized (for example `*` bullets become `-`). Content is unchanged.
+## Privacy
 
-## Development
+DocDeck runs entirely on your machine. It doesn't upload your files and collects no telemetry. The only network requests are for images that a Markdown file links from the internet.
+
+## Requirements
+
+VS Code 1.90 or later, or a compatible editor such as Cursor, Antigravity, Windsurf or VSCodium.
+
+## Feedback
+
+Found a bug or have an idea? [Open an issue](https://github.com/vishalpatil12014017/DocDeck/issues).
+
+## Building from source
 
 ```bash
+git clone https://github.com/vishalpatil12014017/DocDeck.git
+cd DocDeck
 npm install
-npm run build        # bundle extension + webviews into dist/
-npm run watch        # rebuild on change
-npm run typecheck    # type-check extension and webview code
+npm run build        # bundle into dist/ (npm run watch to rebuild on change)
+npm run package      # create docdeck-<version>.vsix
 ```
 
-Press **F5** in VS Code to launch an Extension Development Host with the extension loaded.
+Press **F5** in VS Code to try your changes in an Extension Development Host. The extension host code is in `src/`, and each editor's UI is in `webview/`.
 
-### Project layout
+## License
 
-```
-src/                     extension host (Node)
-  extension.ts           activation, commands
-  providers/             one custom editor provider per file type
-webview/                 browser code for each editor UI (bundled by esbuild)
-  pdf.ts  sheet.ts  docx.ts  markdown.ts  mermaid.ts
-  mermaidRender.ts       shared Mermaid renderer (used by .mmd and Markdown)
-esbuild.mjs              builds dist/extension.js and dist/webview/*
-```
+[MIT](LICENSE) © Vishal Patil
 
-## Packaging & publishing
-
-```bash
-npm run package                         # -> docdeck-<version>.vsix
-```
-
-- **Install locally** in any of the three editors: Extensions view → `…` → *Install from VSIX…*, or `code --install-extension docdeck-0.1.0.vsix` (also `cursor --install-extension …`).
-- **VS Code Marketplace:** `npx @vscode/vsce publish` (needs a publisher account and a personal access token).
-- **Cursor and Antigravity** install extensions from **Open VSX**: `npx ovsx publish docdeck-0.1.0.vsix -p <token>`.
-
-Before publishing, set `publisher` in `package.json` to your Marketplace/Open VSX publisher ID, and add a `repository`, an `icon` and a `LICENSE` file.
-
-## Third-party libraries
-
-[pdf.js](https://github.com/mozilla/pdf.js) (Apache-2.0), [SheetJS CE](https://sheetjs.com) (Apache-2.0), [mammoth](https://github.com/mwilliamson/mammoth.js) (BSD-2), [html-to-docx](https://github.com/TurboDocx/html-to-docx) (MIT), [Tiptap](https://tiptap.dev) (MIT), [Milkdown](https://milkdown.dev) (MIT), [Mermaid](https://mermaid.js.org) (MIT).
+Built with [pdf.js](https://github.com/mozilla/pdf.js), [SheetJS CE](https://sheetjs.com), [mammoth](https://github.com/mwilliamson/mammoth.js), [html-to-docx](https://github.com/TurboDocx/html-to-docx), [Tiptap](https://tiptap.dev), [Milkdown](https://milkdown.dev), [CodeMirror](https://codemirror.net) and [Mermaid](https://mermaid.js.org).

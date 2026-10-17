@@ -33,7 +33,9 @@ export function buildWebviewHtml(
   const nonce = getNonce();
   const asset = (file: string) =>
     webview.asWebviewUri(vscode.Uri.joinPath(extensionUri, 'dist', 'webview', file)).toString();
-  const data = { assetBase: asset(''), ...extraData };
+  // joinPath drops the trailing slash of an empty segment; relative asset URLs need it.
+  const defaultView = vscode.workspace.getConfiguration('docdeck').get<string>('defaultView', 'preview');
+  const data = { assetBase: asset('').replace(/\/?$/, '/'), defaultView, ...extraData };
   const csp = [
     `default-src 'none'`,
     `img-src ${webview.cspSource} https: data: blob:`,
@@ -54,7 +56,9 @@ export function buildWebviewHtml(
   <link rel="stylesheet" href="${asset(`${name}.css`)}">
 </head>
 <body>
+  <div id="viewbar" role="tablist"></div>
   <div id="app"></div>
+  <div id="raw" hidden></div>
   <script nonce="${nonce}">window.__DOCDECK__ = ${JSON.stringify(data).replace(/</g, '\\u003c')};</script>
   <script nonce="${nonce}" type="module" src="${asset(`${name}.js`)}"></script>
 </body>
@@ -85,6 +89,37 @@ export async function applyMinimalTextEdit(document: vscode.TextDocument, newTex
     newText.slice(start, newEnd),
   );
   return vscode.workspace.applyEdit(edit);
+}
+
+/** Largest file shown in the Raw tab; bigger files are truncated (raw text) or made read-only (CSV). */
+export const MAX_RAW_BYTES = 5 * 1024 * 1024;
+
+export interface RawMessage {
+  type: 'raw';
+  text: string;
+  readOnly: boolean;
+  language?: 'markdown' | 'csv' | 'plain';
+  notice?: string;
+}
+
+const formatSize = (bytes: number) => `${(bytes / 1024 / 1024).toFixed(1)} MB`;
+
+/**
+ * The file's bytes as a plain text editor would show them: decoded as UTF-8, with control
+ * characters drawn as visible symbols. Used for the Raw tab of binary formats.
+ */
+export async function rawFileMessage(uri: vscode.Uri): Promise<RawMessage> {
+  const data = await vscode.workspace.fs.readFile(uri);
+  const slice = data.byteLength > MAX_RAW_BYTES ? data.subarray(0, MAX_RAW_BYTES) : data;
+  const text = new TextDecoder('utf-8').decode(slice).replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, (ch) => {
+    const code = ch.charCodeAt(0);
+    return String.fromCharCode(code === 0x7f ? 0x2421 : 0x2400 + code);
+  });
+  const notices = ['Binary file shown as raw text (read-only). This is how it looks in a plain text editor.'];
+  if (slice !== data) {
+    notices.push(`Showing the first ${formatSize(MAX_RAW_BYTES)} of ${formatSize(data.byteLength)}.`);
+  }
+  return { type: 'raw', text, readOnly: true, language: 'plain', notice: notices.join(' ') };
 }
 
 /** Re-sends a file to its webview whenever it changes on disk (for read-only viewers). */

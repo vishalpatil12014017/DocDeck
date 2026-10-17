@@ -6,12 +6,15 @@ html,
 body {
   margin: 0;
   height: 100%;
+  overflow: hidden;
   background: var(--vscode-editor-background);
   color: var(--vscode-editor-foreground);
 }
 
-body {
+#app {
+  height: 100%;
   overflow-y: auto;
+  background: var(--vscode-editor-background);
 }
 
 /* Map Crepe's theme onto the active VS Code color theme. */
@@ -41,10 +44,11 @@ body {
   background: var(--vscode-editor-background);
 }
 
+/* Use the full width of the pane; the wider left margin leaves room for the block handles (+ and drag). */
 .milkdown .ProseMirror {
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 40px 80px 120px;
+  max-width: none;
+  margin: 0;
+  padding: 32px 40px 120px 72px;
 }
 
 .milkdown .ProseMirror ::selection {
@@ -70,8 +74,13 @@ body {
   font-size: 12px;
 }
 
+/* Narrower page margins when sharing the window with the raw pane. */
+body.split-mode .milkdown .ProseMirror {
+  padding: 24px 24px 80px 64px;
+}
+
 @media (max-width: 700px) {
   .milkdown .ProseMirror {
-    padding: 24px 20px 80px;
+    padding: 24px 16px 80px 56px;
   }
 }

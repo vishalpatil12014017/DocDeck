@@ -1,5 +1,8 @@
 import './sheet.css';
 import { h, keepUndoInsideEditable, vscode } from './common';
+import { initViews } from './views';
+
+const views = initViews({ onRawEdit: (text) => vscode.postMessage({ type: 'rawEdit', text }) });
 
 interface Sheet {
   name: string;
@@ -261,6 +264,7 @@ function sendChanges(changes: { r: number; c: number; value: string }[]) {
   for (const { r, c, value } of changes) setLocal(r, c, value, value);
   scheduleRender();
   vscode.postMessage({ type: 'setCells', sheet: sheet().name, changes });
+  views.refreshRaw();
 }
 
 function clearSelection() {
@@ -277,6 +281,7 @@ function clearSelection() {
 
 function structure(op: string, extra: Record<string, unknown> = {}) {
   vscode.postMessage({ type: 'structure', op, sheet: sheet().name, ...extra });
+  views.refreshRaw();
 }
 
 editor.addEventListener('keydown', (e) => {

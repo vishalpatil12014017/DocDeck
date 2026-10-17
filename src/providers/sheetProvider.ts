@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import * as XLSX from 'xlsx';
-import { buildWebviewHtml, localResourceRoots } from '../util';
+import { buildWebviewHtml, localResourceRoots, MAX_RAW_BYTES, rawFileMessage, RawMessage } from '../util';
 
 /** Shape of one sheet as sent to the webview. */
 export interface SheetPayload {
@@ -48,10 +48,14 @@ function parseWorkbook(data: Uint8Array, format: TextFormat | BinaryFormat): XLS
     if (format.bom) {
       text = text.slice(1);
     }
-    // raw: keep every value as typed (no "00123" -> 123 or date mangling on round-trip)
-    return XLSX.read(text, { type: 'string', raw: true, FS: format.separator, dense: false });
+    return parseDelimited(text, format);
   }
   return XLSX.read(data, { type: 'array', cellDates: true, cellNF: true, bookVBA: true });
+}
+
+function parseDelimited(text: string, format: TextFormat): XLSX.WorkBook {
+  // raw: keep every value as typed (no "00123" -> 123 or date mangling on round-trip)
+  return XLSX.read(text, { type: 'string', raw: true, FS: format.separator, dense: false });
 }
 
 function cellRaw(cell: XLSX.CellObject | undefined): string {
@@ -205,6 +209,8 @@ function shiftCells(ws: XLSX.WorkSheet, axis: 'row' | 'col', index: number, coun
 class SheetDocument implements vscode.CustomDocument {
   workbook: XLSX.WorkBook;
   readonly format: TextFormat | BinaryFormat;
+  /** True once the workbook differs from the file on disk (the Raw tab then shows the unsaved text). */
+  edited = false;
 
   constructor(
     public readonly uri: vscode.Uri,
@@ -234,6 +240,7 @@ class SheetDocument implements vscode.CustomDocument {
   setCells(sheetName: string, changes: CellChange[]): CellChange[] {
     const ws = this.sheet(sheetName);
     const previous: CellChange[] = [];
+    this.edited = true;
     for (const { r, c, value } of changes) {
       const addr = XLSX.utils.encode_cell({ r, c });
       previous.push({ r, c, value: cellRaw(ws[addr]) });
@@ -263,10 +270,37 @@ class SheetDocument implements vscode.CustomDocument {
   restore(snap: ReturnType<SheetDocument['snapshot']>) {
     this.workbook.SheetNames = [...snap.names];
     this.workbook.Sheets = { ...snap.sheets };
+    this.edited = true;
+  }
+
+  /** Replaces the whole sheet with edited CSV/TSV text from the Raw tab. */
+  replaceFromText(text: string) {
+    if (this.format.kind !== 'text') {
+      throw new Error('Only CSV/TSV files can be edited as raw text');
+    }
+    const parsed = parseDelimited(text, this.format);
+    this.workbook.SheetNames = parsed.SheetNames;
+    this.workbook.Sheets = parsed.Sheets;
+    this.edited = true;
+  }
+
+  async rawMessage(): Promise<RawMessage> {
+    if (this.format.kind !== 'text') {
+      return rawFileMessage(this.uri);
+    }
+    const bytes = this.edited ? this.serialize() : await vscode.workspace.fs.readFile(this.uri);
+    const text = new TextDecoder('utf-8').decode(bytes);
+    if (bytes.byteLength > MAX_RAW_BYTES) {
+      return { type: 'raw', text, readOnly: true, language: 'csv', notice: 'Large file: the raw view is read-only. Edit it in the grid instead.' };
+    }
+    return { type: 'raw', text, readOnly: false, language: 'csv' };
   }
 
   async save(target: vscode.Uri): Promise<void> {
     await vscode.workspace.fs.writeFile(target, this.serialize());
+    if (target.toString() === this.uri.toString()) {
+      this.edited = false;
+    }
   }
 
   serialize(): Uint8Array {
@@ -282,6 +316,7 @@ class SheetDocument implements vscode.CustomDocument {
   async reload(): Promise<void> {
     const data = await vscode.workspace.fs.readFile(this.uri);
     this.workbook = parseWorkbook(data, this.format);
+    this.edited = false;
   }
 
   dispose() {}
@@ -375,7 +410,37 @@ export class SheetEditorProvider implements vscode.CustomEditorProvider<SheetDoc
       case 'structure':
         this.applyStructural(document, msg);
         return;
+      case 'getRaw':
+        document.rawMessage().then((raw) => this.post(document, raw));
+        return;
+      case 'rawEdit':
+        this.applyRawEdit(document, String(msg.text));
+        return;
     }
+  }
+
+  /** CSV/TSV text edited in the Raw tab replaces the sheet; undo restores the previous workbook. */
+  private applyRawEdit(document: SheetDocument, text: string) {
+    const before = document.snapshot();
+    document.replaceFromText(text);
+    const after = document.snapshot();
+    this.sendAll(document);
+    const refresh = async () => {
+      this.sendAll(document);
+      this.post(document, await document.rawMessage());
+    };
+    this._onDidChangeCustomDocument.fire({
+      document,
+      label: 'Edit raw text',
+      undo: async () => {
+        document.restore(before);
+        await refresh();
+      },
+      redo: async () => {
+        document.restore(after);
+        await refresh();
+      },
+    });
   }
 
   /** Row/column/sheet operations, undone by restoring a shallow workbook snapshot. */
@@ -383,6 +448,7 @@ export class SheetEditorProvider implements vscode.CustomEditorProvider<SheetDoc
     const before = document.snapshot();
     const wb = document.workbook;
     let active: string = msg.sheet;
+    document.edited = true;
     switch (msg.op) {
       case 'insertRows':
       case 'deleteRows':

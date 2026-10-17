@@ -1,0 +1,205 @@
+/* Shared page shell: the "Preview | Raw" bar on top, the preview in #app below it, and the raw text overlay. */
+:root {
+  --viewbar-h: 30px;
+  /* width of the raw pane in Split view */
+  --raw-w: 50%;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  /* VS Code's default webview styles add "padding: 0 20px" to body; the panes manage their own spacing. */
+  padding: var(--viewbar-h) 0 0;
+  box-sizing: border-box;
+}
+
+#viewbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--viewbar-h);
+  display: flex;
+  align-items: stretch;
+  gap: 2px;
+  padding: 0 8px;
+  box-sizing: border-box;
+  background: var(--vscode-editorGroupHeader-tabsBackground, var(--vscode-editorWidget-background));
+  border-bottom: 1px solid var(--vscode-editorGroupHeader-tabsBorder, var(--vscode-panel-border, rgba(128, 128, 128, 0.3)));
+  z-index: 1000;
+  font-family: var(--vscode-font-family);
+  font-size: 12px;
+}
+
+.vb-tab {
+  padding: 0 12px;
+  border: none;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  color: var(--vscode-tab-inactiveForeground, var(--vscode-foreground));
+  font: inherit;
+  cursor: pointer;
+  opacity: 0.8;
+}
+.vb-tab:hover {
+  opacity: 1;
+  background: var(--vscode-toolbar-hoverBackground, rgba(128, 128, 128, 0.15));
+}
+.vb-tab.on {
+  color: var(--vscode-tab-activeForeground, var(--vscode-foreground));
+  border-bottom-color: var(--vscode-focusBorder, #0078d4);
+  font-weight: 600;
+  opacity: 1;
+}
+.vb-tab:focus-visible {
+  outline: 1px solid var(--vscode-focusBorder);
+  outline-offset: -1px;
+}
+
+#raw {
+  position: fixed;
+  top: var(--viewbar-h);
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  z-index: 900;
+  background: var(--vscode-editor-background);
+}
+#raw[hidden] {
+  display: none;
+}
+
+.raw-notice {
+  padding: 6px 12px;
+  font-family: var(--vscode-font-family);
+  font-size: 12px;
+  color: var(--vscode-descriptionForeground, var(--vscode-foreground));
+  background: var(--vscode-editorWidget-background);
+  border-bottom: 1px solid var(--vscode-panel-border, rgba(128, 128, 128, 0.3));
+}
+
+.raw-host {
+  flex: 1;
+  min-height: 0;
+}
+
+/* Keep the preview's scroll position while the raw view covers it. */
+body.raw-mode {
+  overflow: hidden;
+}
+
+/* Split: preview on the left, raw text on the right. Fixed-position preview parts use --preview-inset. */
+body.split-mode {
+  --preview-inset: var(--raw-w);
+}
+body.split-mode #app {
+  width: calc(100% - var(--raw-w));
+}
+body.split-mode #raw {
+  left: auto;
+  width: var(--raw-w);
+  border-left: 1px solid var(--vscode-panel-border, rgba(128, 128, 128, 0.35));
+  box-sizing: border-box;
+}
+#split-divider {
+  position: fixed;
+  top: var(--viewbar-h);
+  bottom: 0;
+  right: calc(var(--raw-w) - 3px);
+  width: 6px;
+  cursor: col-resize;
+  z-index: 950;
+}
+#split-divider:hover,
+body.resizing #split-divider {
+  background: var(--vscode-sash-hoverBorder, var(--vscode-focusBorder, #0078d4));
+}
+body.resizing {
+  cursor: col-resize;
+  user-select: none;
+}
+
+/*
+ * The preview always uses a light palette, whatever VS Code theme is active.
+ * Editor styles read --vscode-* variables, so redefining them on #app makes every preview light,
+ * while the tab bar and the Raw view (outside #app) keep following the VS Code theme.
+ */
+html,
+body {
+  background: #ffffff;
+}
+
+#app {
+  color-scheme: light;
+  color: #3b3b3b;
+  /* VS Code's default webview styles color blockquotes, inline code, links, <kbd> and scrollbars
+     from these variables too, so they need light values as well. */
+  scrollbar-color: var(--vscode-scrollbarSlider-background) var(--vscode-editor-background);
+  --vscode-textBlockQuote-background: #f6f6f6;
+  --vscode-textBlockQuote-border: #d0d7de;
+  --vscode-textPreformat-background: rgba(0, 0, 0, 0.06);
+  --vscode-textLink-activeForeground: #004c94;
+  --vscode-textSeparator-foreground: #d0d7de;
+  --vscode-keybindingLabel-background: rgba(221, 221, 221, 0.4);
+  --vscode-keybindingLabel-foreground: #3b3b3b;
+  --vscode-keybindingLabel-border: rgba(204, 204, 204, 0.4);
+  --vscode-keybindingLabel-bottomBorder: rgba(187, 187, 187, 0.4);
+  --vscode-widget-shadow: rgba(0, 0, 0, 0.16);
+  --vscode-editor-findMatchBackground: #a8ac94;
+  --vscode-editor-findMatchHighlightBackground: rgba(234, 92, 0, 0.33);
+  --vscode-input-placeholderForeground: #767676;
+  --vscode-button-hoverBackground: #0258a8;
+  --vscode-button-secondaryHoverBackground: #cccccc;
+  --vscode-inputValidation-infoBackground: #d6ecf2;
+  --vscode-editor-background: #ffffff;
+  --vscode-editor-foreground: #3b3b3b;
+  --vscode-foreground: #3b3b3b;
+  --vscode-descriptionForeground: #717171;
+  --vscode-errorForeground: #c72e0f;
+  --vscode-focusBorder: #005fb8;
+  --vscode-textLink-foreground: #005fb8;
+  --vscode-textPreformat-foreground: #a31515;
+  --vscode-textCodeBlock-background: #f5f5f5;
+  --vscode-editor-selectionBackground: #add6ff;
+  --vscode-editorWidget-background: #f8f8f8;
+  --vscode-editorWidget-foreground: #3b3b3b;
+  --vscode-editorHoverWidget-background: #f8f8f8;
+  --vscode-editorHoverWidget-foreground: #3b3b3b;
+  --vscode-editorGroup-border: #e5e5e5;
+  --vscode-editorGroup-emptyBackground: #f3f3f3;
+  --vscode-sideBar-background: #f8f8f8;
+  --vscode-panel-border: #e5e5e5;
+  --vscode-widget-border: #e5e5e5;
+  --vscode-input-background: #ffffff;
+  --vscode-input-foreground: #3b3b3b;
+  --vscode-input-border: #cecece;
+  --vscode-inputOption-activeBackground: #bed6ed;
+  --vscode-inputOption-activeForeground: #000000;
+  --vscode-inputValidation-warningBackground: #fff8e1;
+  --vscode-inputValidation-warningBorder: #e0b100;
+  --vscode-inputValidation-errorBackground: #fdecea;
+  --vscode-inputValidation-errorBorder: #c72e0f;
+  --vscode-button-background: #005fb8;
+  --vscode-button-foreground: #ffffff;
+  --vscode-button-secondaryBackground: #e5e5e5;
+  --vscode-button-secondaryForeground: #3b3b3b;
+  --vscode-button-border: transparent;
+  --vscode-toolbar-hoverBackground: rgba(184, 184, 184, 0.31);
+  --vscode-list-hoverBackground: #f2f2f2;
+  --vscode-list-activeSelectionBackground: #e4e6f1;
+  --vscode-list-inactiveSelectionBackground: #e4e6f1;
+  --vscode-menu-background: #ffffff;
+  --vscode-menu-foreground: #3b3b3b;
+  --vscode-menu-border: #cecece;
+  --vscode-menu-selectionBackground: #005fb8;
+  --vscode-menu-selectionForeground: #ffffff;
+  --vscode-menu-separatorBackground: #e5e5e5;
+  --vscode-scrollbarSlider-background: rgba(100, 100, 100, 0.4);
+  --vscode-scrollbarSlider-hoverBackground: rgba(100, 100, 100, 0.7);
+  --vscode-scrollbarSlider-activeBackground: rgba(0, 0, 0, 0.6);
+}

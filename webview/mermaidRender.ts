@@ -1,27 +1,24 @@
-import { isDarkTheme } from './common';
-
 type Mermaid = typeof import('mermaid').default;
 
 let mermaidPromise: Promise<Mermaid> | undefined;
-let configuredDark: boolean | undefined;
+let initialized = false;
 let counter = 0;
 
-/** Loads mermaid lazily (it is large) and keeps its theme in sync with VS Code. */
+/** Loads mermaid lazily (it is large). Diagrams always use the light theme, like the rest of the preview. */
 async function getMermaid(): Promise<Mermaid> {
   mermaidPromise ??= import('mermaid').then((m) => m.default);
   const mermaid = await mermaidPromise;
-  const dark = isDarkTheme();
-  if (configuredDark !== dark) {
+  if (!initialized) {
     mermaid.initialize({
       startOnLoad: false,
       securityLevel: 'strict',
-      theme: dark ? 'dark' : 'default',
+      theme: 'default',
       // SVG text labels (instead of HTML) keep PNG export working and render the same everywhere.
       htmlLabels: false,
       flowchart: { htmlLabels: false },
       fontFamily: 'var(--vscode-font-family), sans-serif',
     });
-    configuredDark = dark;
+    initialized = true;
   }
   return mermaid;
 }

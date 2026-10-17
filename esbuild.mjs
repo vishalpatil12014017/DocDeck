@@ -53,7 +53,7 @@ const webviewConfig = {
 
 function copyPdfjsAssets() {
   mkdirSync('dist/webview/pdfjs', { recursive: true });
-  cpSync('node_modules/pdfjs-dist/build/pdf.worker.min.mjs', 'dist/webview/pdfjs/pdf.worker.min.mjs');
+  cpSync('node_modules/pdfjs-dist/legacy/build/pdf.worker.min.mjs', 'dist/webview/pdfjs/pdf.worker.min.mjs');
   for (const dir of ['cmaps', 'standard_fonts', 'wasm', 'iccs']) {
     cpSync(`node_modules/pdfjs-dist/${dir}`, `dist/webview/pdfjs/${dir}`, { recursive: true });
   }

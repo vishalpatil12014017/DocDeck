@@ -5,8 +5,10 @@ import TextAlign from '@tiptap/extension-text-align';
 import Image from '@tiptap/extension-image';
 import { TableKit } from '@tiptap/extension-table';
 import { debounce, h, keepUndoInsideEditable, vscode } from './common';
+import { initViews } from './views';
 
 keepUndoInsideEditable();
+initViews();
 
 const toolbar = h('div', { className: 'toolbar' });
 const notice = h('div', { className: 'notice', hidden: true });

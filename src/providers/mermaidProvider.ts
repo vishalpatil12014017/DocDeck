@@ -1,9 +1,9 @@
 import * as vscode from 'vscode';
-import { buildWebviewHtml, localResourceRoots } from '../util';
+import { applyMinimalTextEdit, buildWebviewHtml, localResourceRoots } from '../util';
 
 /**
- * Mermaid diagram viewer for .mmd / .mermaid files. The diagram re-renders live as the
- * source changes; "Open Source Text" opens the file in a normal text editor beside it.
+ * Mermaid diagram viewer for .mmd / .mermaid files, with a Raw tab for editing the source.
+ * The diagram re-renders live as the source changes from either the Raw tab or a text editor.
  */
 export class MermaidEditorProvider implements vscode.CustomTextEditorProvider {
   static readonly viewType = 'docdeck.mermaid';
@@ -24,7 +24,9 @@ export class MermaidEditorProvider implements vscode.CustomTextEditorProvider {
     };
     webview.html = buildWebviewHtml(webview, this.context.extensionUri, 'mermaid', 'Mermaid Diagram');
 
-    const sendText = () => webview.postMessage({ type: 'update', text: document.getText() });
+    // The webview works with \n line endings; CRLF files get theirs back when edits are applied.
+    const sendText = () => webview.postMessage({ type: 'update', text: document.getText().replace(/\r\n/g, '\n') });
+    const fromWebview = (text: string) => (document.eol === vscode.EndOfLine.CRLF ? text.replace(/\r?\n/g, '\r\n') : text);
 
     const disposables = [
       vscode.workspace.onDidChangeTextDocument((e) => {
@@ -37,8 +39,8 @@ export class MermaidEditorProvider implements vscode.CustomTextEditorProvider {
           case 'ready':
             sendText();
             break;
-          case 'openSource':
-            vscode.commands.executeCommand('docdeck.openSource', document.uri);
+          case 'edit':
+            await applyMinimalTextEdit(document, fromWebview(msg.text));
             break;
           case 'export':
             await this.export(document.uri, msg.format, msg.data);

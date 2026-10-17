@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { buildWebviewHtml, localResourceRoots, watchFile } from '../util';
+import { buildWebviewHtml, localResourceRoots, rawFileMessage, watchFile } from '../util';
 
 class PdfDocument implements vscode.CustomDocument {
   constructor(public readonly uri: vscode.Uri) {}
@@ -34,7 +34,9 @@ export class PdfEditorProvider implements vscode.CustomReadonlyEditorProvider<Pd
     const sendFile = async () => {
       try {
         const data = await vscode.workspace.fs.readFile(document.uri);
-        webview.postMessage({ type: 'load', data });
+        // readFile returns a Node Buffer, which serializes to {type:'Buffer', data:[...]};
+        // a plain Uint8Array is transferred to the webview as binary.
+        webview.postMessage({ type: 'load', data: new Uint8Array(data) });
       } catch (err) {
         webview.postMessage({ type: 'error', message: String(err) });
       }
@@ -44,6 +46,8 @@ export class PdfEditorProvider implements vscode.CustomReadonlyEditorProvider<Pd
       webview.onDidReceiveMessage((msg) => {
         if (msg.type === 'ready') {
           sendFile();
+        } else if (msg.type === 'getRaw') {
+          rawFileMessage(document.uri).then((raw) => webview.postMessage(raw));
         } else if (msg.type === 'openLink' && typeof msg.url === 'string') {
           vscode.env.openExternal(vscode.Uri.parse(msg.url));
         }

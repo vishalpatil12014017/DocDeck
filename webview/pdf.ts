@@ -1,10 +1,13 @@
-import 'pdfjs-dist/web/pdf_viewer.css';
+import 'pdfjs-dist/legacy/web/pdf_viewer.css';
 import './pdf.css';
 import { pdfjsLib } from './pdfjs-global';
-import { config, h, vscode } from './common';
+import { config, h, updateState, vscode } from './common';
+import { initViews } from './views';
 
-type ViewerModule = typeof import('pdfjs-dist/web/pdf_viewer.mjs');
-const viewerLib: ViewerModule = await import('pdfjs-dist/web/pdf_viewer.mjs');
+const views = initViews();
+
+type ViewerModule = typeof import('pdfjs-dist/legacy/web/pdf_viewer.mjs');
+const viewerLib: ViewerModule = await import('pdfjs-dist/legacy/web/pdf_viewer.mjs');
 
 const pdfjsBase = `${config.assetBase}pdfjs/`;
 
@@ -129,7 +132,7 @@ eventBus.on('updatefindcontrolstate', ({ state, matchesCount }: { state: number;
 });
 
 function saveState() {
-  vscode.setState({ scale: viewer.currentScaleValue, page: viewer.currentPageNumber });
+  updateState({ scale: viewer.currentScaleValue, page: viewer.currentPageNumber });
 }
 
 function find(type: '' | 'again', findPrevious = false) {
@@ -144,6 +147,11 @@ function find(type: '' | 'again', findPrevious = false) {
     matchDiacritics: false,
   });
 }
+
+new ResizeObserver(() => {
+  const preset = viewer.currentScaleValue;
+  if (viewer.pagesCount && ['auto', 'page-width', 'page-fit'].includes(preset)) viewer.currentScaleValue = preset;
+}).observe(container);
 
 pageInput.addEventListener('change', () => {
   const n = Number(pageInput.value);
@@ -219,7 +227,7 @@ function askPassword(retry: boolean): Promise<string | null> {
       e.preventDefault();
       done(input.value);
     };
-    document.body.append(form);
+    document.getElementById('app')!.append(form);
     input.focus();
   });
 }
@@ -260,7 +268,9 @@ async function load(data: Uint8Array) {
 window.addEventListener('message', (e) => {
   const msg = e.data;
   if (msg.type === 'load') {
-    load(msg.data);
+    // Accept a serialized Node Buffer ({type:'Buffer', data:[...]}) as well as raw bytes.
+    load(msg.data instanceof Uint8Array ? msg.data : new Uint8Array(msg.data?.data ?? msg.data));
+    views.refreshRaw();
   } else if (msg.type === 'error') {
     message.textContent = msg.message;
   }

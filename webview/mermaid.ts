@@ -1,6 +1,7 @@
 import './mermaid.css';
-import { debounce, h, onThemeChange, vscode } from './common';
+import { debounce, h, vscode } from './common';
 import { renderMermaid } from './mermaidRender';
+import { initViews } from './views';
 
 const zoomLabel = h('span', { className: 'zoom-label', textContent: '100%' });
 const btn = (label: string, title: string, onclick: () => void) => h('button', { className: 'tb-btn', textContent: label, title, onclick });
@@ -14,7 +15,6 @@ const toolbar = h(
     { className: 'group' },
     btn('Export SVG', 'Save diagram as SVG', () => exportAs('svg')),
     btn('Export PNG', 'Save diagram as PNG', () => exportAs('png')),
-    btn('Edit Source', 'Open the source text beside this view', () => vscode.postMessage({ type: 'openSource' })),
   ),
 );
 const canvas = h('div', { className: 'canvas' });
@@ -23,6 +23,15 @@ const errorBox = h('pre', { className: 'error', hidden: true });
 document.getElementById('app')!.append(toolbar, stage, errorBox);
 
 let source = '';
+
+const views = initViews({
+  loadRaw: () => views.setRaw({ text: source, readOnly: false, language: 'plain' }),
+  onRawEdit: (text) => {
+    source = text;
+    render();
+    vscode.postMessage({ type: 'edit', text });
+  },
+});
 let svgText = '';
 let zoom = 1;
 let pan = { x: 0, y: 0 };
@@ -71,7 +80,7 @@ const render = debounce(async () => {
   if (!source.trim()) {
     canvas.innerHTML = '';
     errorBox.hidden = false;
-    errorBox.textContent = 'This file is empty. Click "Edit Source" to write a Mermaid diagram.';
+    errorBox.textContent = 'This file is empty. Switch to the Raw tab to write a Mermaid diagram.';
     return;
   }
   try {
@@ -157,7 +166,7 @@ async function exportAs(format: 'svg' | 'png') {
   c.width = Math.ceil(w * scale);
   c.height = Math.ceil(h * scale);
   const ctx = c.getContext('2d')!;
-  ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--vscode-editor-background') || '#fff';
+  ctx.fillStyle = '#ffffff';
   ctx.fillRect(0, 0, c.width, c.height);
   ctx.drawImage(img, 0, 0, c.width, c.height);
   try {
@@ -172,12 +181,11 @@ new ResizeObserver(() => {
   if (fitted && !userZoomed) fit();
 }).observe(stage);
 
-onThemeChange(() => render());
-
 window.addEventListener('message', (e) => {
   if (e.data.type === 'update' && e.data.text !== source) {
     source = e.data.text;
     render();
+    if (views.rawVisible()) views.setRaw({ text: source, readOnly: false, language: 'plain' });
   }
 });
 

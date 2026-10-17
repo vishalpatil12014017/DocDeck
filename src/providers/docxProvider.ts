@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import mammoth from 'mammoth';
 import HTMLtoDOCX from '@turbodocx/html-to-docx';
-import { buildWebviewHtml, localResourceRoots } from '../util';
+import { buildWebviewHtml, localResourceRoots, rawFileMessage } from '../util';
 
 const BACKUP_PREFIX = '<!--docdeck-docx-backup-->';
 
@@ -111,6 +111,9 @@ export class DocxEditorProvider implements vscode.CustomEditorProvider<DocxDocum
         case 'change':
           document.html = msg.html;
           this._onDidChangeCustomDocument.fire({ document });
+          break;
+        case 'getRaw':
+          rawFileMessage(document.uri).then((raw) => webview.postMessage(raw));
           break;
       }
     });

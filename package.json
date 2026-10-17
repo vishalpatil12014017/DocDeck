@@ -5,6 +5,19 @@
   "version": "0.1.0",
   "publisher": "vishalpatil",
   "icon": "media/icon.png",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/vishalpatil12014017/DocDeck.git"
+  },
+  "bugs": {
+    "url": "https://github.com/vishalpatil12014017/DocDeck/issues"
+  },
+  "homepage": "https://github.com/vishalpatil12014017/DocDeck#readme",
+  "galleryBanner": {
+    "color": "#18181B",
+    "theme": "dark"
+  },
   "engines": {
     "vscode": "^1.90.0"
   },
@@ -76,7 +89,7 @@
       {
         "viewType": "docdeck.markdown",
         "displayName": "Markdown WYSIWYG Editor",
-        "priority": "option",
+        "priority": "default",
         "selector": [
           {
             "filenamePattern": "*.md"
@@ -152,6 +165,21 @@
           "type": "boolean",
           "default": true,
           "description": "Warn before overwriting a .docx file, since saving rewrites it with simplified formatting."
+        },
+        "docdeck.defaultView": {
+          "type": "string",
+          "enum": [
+            "preview",
+            "raw",
+            "split"
+          ],
+          "default": "preview",
+          "enumDescriptions": [
+            "Rendered view only",
+            "The file as plain text",
+            "Preview and raw text side by side"
+          ],
+          "description": "Which view DocDeck shows when a file is opened. Preview by default."
         }
       }
     }
@@ -160,10 +188,15 @@
     "build": "node esbuild.mjs",
     "watch": "node esbuild.mjs --watch",
     "typecheck": "tsc --noEmit -p . && tsc --noEmit -p webview",
-    "package": "node esbuild.mjs --production && vsce package --no-dependencies --allow-missing-repository --skip-license",
+    "package": "node esbuild.mjs --production && vsce package --no-dependencies",
     "vscode:prepublish": "node esbuild.mjs --production"
   },
   "dependencies": {
+    "@codemirror/lang-markdown": "^6.5.2",
+    "@codemirror/language": "^6.13.1",
+    "@codemirror/state": "^6.7.6",
+    "@codemirror/theme-one-dark": "^6.1.3",
+    "@codemirror/view": "^6.43.14",
     "@milkdown/crepe": "^7.22.3",
     "@milkdown/kit": "^7.22.3",
     "@tiptap/core": "^3.32.0",
@@ -178,6 +211,7 @@
     "@tiptap/pm": "^3.32.0",
     "@tiptap/starter-kit": "^3.32.0",
     "@turbodocx/html-to-docx": "^1.23.1",
+    "codemirror": "^6.0.2",
     "mammoth": "^1.13.0",
     "mermaid": "^12.2.0",
     "pdfjs-dist": "^6.4.299",
