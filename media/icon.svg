@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#2E2E33"/>
+      <stop offset="1" stop-color="#09090B"/>
+    </linearGradient>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="#000" flood-opacity="0.45"/>
+    </filter>
+  </defs>
+  <rect width="256" height="256" rx="56" fill="url(#bg)"/>
+  <rect x="1.5" y="1.5" width="253" height="253" rx="54.5" fill="none" stroke="#fff" stroke-opacity=".12" stroke-width="3"/>
+  <g filter="url(#shadow)" transform="translate(128 124) scale(0.86) translate(-128 -122)">
+    <!-- back to front: outer cards, inner cards, then the PDF card in the middle -->
+    
+  <g transform="rotate(-30 128 236)">
+    <path d="M95 56 H161 A13 13 0 0 1 174 69 V167 A13 13 0 0 1 161 180 H95 A13 13 0 0 1 82 167 V69 A13 13 0 0 1 95 56 Z" fill="#8B5CF6"/>
+    
+    <g transform="translate(102 80) scale(0.56) translate(-128 -98)"><g stroke="#fff" stroke-width="4" fill="none" stroke-linecap="round">
+      <path d="M128 86 V98 M128 98 H108 V108 M128 98 H148 V108"/></g>
+    <g fill="#fff"><rect x="114" y="68" width="28" height="18" rx="5"/>
+      <circle cx="108" cy="118" r="10"/><rect x="138" y="108" width="20" height="20" rx="3" transform="rotate(45 148 118)"/></g></g>
+  </g>
+    
+  <g transform="rotate(30 128 236)">
+    <path d="M95 56 H161 A13 13 0 0 1 174 69 V167 A13 13 0 0 1 161 180 H95 A13 13 0 0 1 82 167 V69 A13 13 0 0 1 95 56 Z" fill="#F59E0B"/>
+    
+    <g transform="translate(154 80) scale(0.5) translate(-128 -98)"><g fill="#fff">
+      <path d="M96 122 V76 H107 L117 92 L127 76 H138 V122 H127 V96 L117 110 L107 96 V122 Z"/>
+      <path d="M146 76 H156 V100 H164 L151 118 L138 100 H146 Z"/></g></g>
+  </g>
+    
+  <g transform="rotate(-15 128 236)">
+    <path d="M95 56 H161 A13 13 0 0 1 174 69 V167 A13 13 0 0 1 161 180 H95 A13 13 0 0 1 82 167 V69 A13 13 0 0 1 95 56 Z" fill="#10B981"/>
+    
+    <g transform="translate(106 82) scale(0.56) translate(-128 -98)"><g fill="none" stroke="#fff" stroke-width="4" stroke-linejoin="round">
+      <rect x="96" y="72" width="64" height="52" rx="5"/>
+      <path d="M96 89 H160 M96 106 H160 M117 72 V124 M139 72 V124"/>
+    </g><rect x="96" y="72" width="64" height="17" rx="5" fill="#fff" opacity=".45"/></g>
+  </g>
+    
+  <g transform="rotate(15 128 236)">
+    <path d="M95 56 H161 A13 13 0 0 1 174 69 V167 A13 13 0 0 1 161 180 H95 A13 13 0 0 1 82 167 V69 A13 13 0 0 1 95 56 Z" fill="#0EA5E9"/>
+    
+    <g transform="translate(150 82) scale(0.56) translate(-128 -98)"><text x="128" y="96" text-anchor="middle" font-size="25" fill="#fff" font-family="'Arial Black','Helvetica Neue',Arial,sans-serif" font-weight="900">DOC</text>
+    <g stroke="#fff" stroke-width="5" stroke-linecap="round" opacity=".85"><path d="M98 110 H158 M98 122 H150"/></g></g>
+  </g>
+    
+  <g transform="rotate(0 128 236)">
+    <path d="M95 56 H148 L174 82 V167 A13 13 0 0 1 161 180 H95 A13 13 0 0 1 82 167 V69 A13 13 0 0 1 95 56 Z" fill="#F43F5E"/>
+    <path d="M148 56 V72 A10 10 0 0 0 158 82 H174 Z" fill="#000" opacity=".25"/>
+    <text x="128" y="118" text-anchor="middle" font-size="33" fill="#fff" font-family="'Arial Black','Helvetica Neue',Arial,sans-serif" font-weight="900">PDF</text>
+    <g stroke="#fff" stroke-width="5" stroke-linecap="round" opacity=".8"><path d="M100 138 H156 M100 152 H146 M100 166 H152"/></g>
+  </g>
+  </g>
+</svg>

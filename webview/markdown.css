@@ -1,0 +1,77 @@
+[hidden] {
+  display: none !important;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  background: var(--vscode-editor-background);
+  color: var(--vscode-editor-foreground);
+}
+
+body {
+  overflow-y: auto;
+}
+
+/* Map Crepe's theme onto the active VS Code color theme. */
+.milkdown {
+  --crepe-color-background: var(--vscode-editor-background);
+  --crepe-color-on-background: var(--vscode-editor-foreground);
+  --crepe-color-surface: var(--vscode-editorWidget-background);
+  --crepe-color-surface-low: var(--vscode-sideBar-background, var(--vscode-editorWidget-background));
+  --crepe-color-on-surface: var(--vscode-foreground);
+  --crepe-color-on-surface-variant: var(--vscode-descriptionForeground);
+  --crepe-color-outline: var(--vscode-widget-border, var(--vscode-panel-border, rgba(128, 128, 128, 0.4)));
+  --crepe-color-primary: var(--vscode-textLink-foreground);
+  --crepe-color-secondary: var(--vscode-list-inactiveSelectionBackground, rgba(128, 128, 128, 0.25));
+  --crepe-color-on-secondary: var(--vscode-foreground);
+  --crepe-color-inverse: var(--vscode-editorHoverWidget-background, var(--vscode-editorWidget-background));
+  --crepe-color-on-inverse: var(--vscode-editorHoverWidget-foreground, var(--vscode-foreground));
+  --crepe-color-inline-code: var(--vscode-textPreformat-foreground);
+  --crepe-color-error: var(--vscode-errorForeground);
+  --crepe-color-hover: var(--vscode-list-hoverBackground, rgba(128, 128, 128, 0.15));
+  --crepe-color-selected: var(--vscode-list-activeSelectionBackground, rgba(0, 120, 212, 0.3));
+  --crepe-color-inline-area: var(--vscode-textCodeBlock-background, rgba(128, 128, 128, 0.15));
+
+  --crepe-font-title: var(--vscode-font-family);
+  --crepe-font-default: var(--vscode-font-family);
+  --crepe-font-code: var(--vscode-editor-font-family);
+
+  background: var(--vscode-editor-background);
+}
+
+.milkdown .ProseMirror {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 40px 80px 120px;
+}
+
+.milkdown .ProseMirror ::selection {
+  background: var(--vscode-editor-selectionBackground);
+}
+
+.mermaid-preview {
+  display: flex;
+  justify-content: center;
+  overflow-x: auto;
+  padding: 8px 0;
+}
+.mermaid-preview svg {
+  max-width: 100%;
+  height: auto;
+}
+.mermaid-error {
+  margin: 0;
+  padding: 8px 12px;
+  white-space: pre-wrap;
+  color: var(--vscode-errorForeground);
+  font-family: var(--vscode-editor-font-family);
+  font-size: 12px;
+}
+
+@media (max-width: 700px) {
+  .milkdown .ProseMirror {
+    padding: 24px 20px 80px;
+  }
+}

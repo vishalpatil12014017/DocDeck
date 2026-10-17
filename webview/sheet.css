@@ -1,0 +1,257 @@
+[hidden] {
+  display: none !important;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  background: var(--vscode-editor-background);
+  color: var(--vscode-editor-foreground);
+  font-family: var(--vscode-font-family);
+  font-size: var(--vscode-font-size);
+}
+
+#app {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  --grid-line: var(--vscode-editorGroup-border, rgba(128, 128, 128, 0.25));
+  --header-bg: var(--vscode-editorWidget-background, rgba(128, 128, 128, 0.1));
+  --accent: var(--vscode-focusBorder, #0078d4);
+}
+
+.formula-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 6px;
+  border-bottom: 1px solid var(--grid-line);
+}
+.cell-name {
+  min-width: 80px;
+  padding: 2px 6px;
+  font-family: var(--vscode-editor-font-family);
+  border-right: 1px solid var(--grid-line);
+}
+.fx {
+  font-style: italic;
+  opacity: 0.6;
+}
+.formula-input {
+  flex: 1;
+  height: 22px;
+  background: var(--vscode-input-background);
+  color: var(--vscode-input-foreground);
+  border: 1px solid var(--vscode-input-border, transparent);
+  font-family: var(--vscode-editor-font-family);
+  padding: 0 6px;
+}
+.formula-input:focus,
+.tab-input:focus {
+  outline: 1px solid var(--accent);
+}
+
+.grid-wrap {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  --row-header-w: 50px;
+}
+.corner,
+.col-header,
+.row-header {
+  position: absolute;
+  overflow: hidden;
+  background: var(--header-bg);
+  user-select: none;
+}
+.corner {
+  top: 0;
+  left: 0;
+  width: var(--row-header-w);
+  height: 24px;
+  border-right: 1px solid var(--grid-line);
+  border-bottom: 1px solid var(--grid-line);
+  box-sizing: border-box;
+  cursor: pointer;
+}
+.col-header {
+  top: 0;
+  left: var(--row-header-w);
+  right: 0;
+  height: 24px;
+}
+.row-header {
+  top: 24px;
+  left: 0;
+  bottom: 0;
+  width: var(--row-header-w);
+}
+.header-inner {
+  position: absolute;
+  top: 0;
+  left: 0;
+  will-change: transform;
+}
+.hcell {
+  position: absolute;
+  height: 24px;
+  line-height: 24px;
+  text-align: center;
+  box-sizing: border-box;
+  border-right: 1px solid var(--grid-line);
+  border-bottom: 1px solid var(--grid-line);
+  font-size: 12px;
+  opacity: 0.85;
+  cursor: default;
+}
+.row-header .hcell {
+  width: var(--row-header-w);
+}
+.hcell.on {
+  background: var(--vscode-list-inactiveSelectionBackground, rgba(0, 120, 212, 0.2));
+  opacity: 1;
+  font-weight: 600;
+}
+.resizer {
+  position: absolute;
+  right: -3px;
+  top: 0;
+  width: 6px;
+  height: 100%;
+  cursor: col-resize;
+  z-index: 1;
+}
+
+.body {
+  position: absolute;
+  top: 24px;
+  left: var(--row-header-w);
+  right: 0;
+  bottom: 0;
+  overflow: auto;
+  outline: none;
+}
+.spacer {
+  position: relative;
+}
+.cells {
+  position: absolute;
+  inset: 0;
+}
+.cell {
+  position: absolute;
+  height: 24px;
+  line-height: 24px;
+  padding: 0 4px;
+  box-sizing: border-box;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  background: var(--vscode-editor-background);
+  border-right: 1px solid var(--grid-line);
+  border-bottom: 1px solid var(--grid-line);
+}
+.cell.num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.selection {
+  position: absolute;
+  background: var(--vscode-editor-selectionBackground, rgba(0, 120, 212, 0.2));
+  opacity: 0.5;
+  pointer-events: none;
+}
+.active-cell {
+  position: absolute;
+  border: 2px solid var(--accent);
+  box-sizing: border-box;
+  pointer-events: none;
+}
+.cell-editor {
+  position: absolute;
+  height: 24px;
+  box-sizing: border-box;
+  border: 2px solid var(--accent);
+  padding: 0 3px;
+  background: var(--vscode-input-background);
+  color: var(--vscode-input-foreground);
+  font: inherit;
+  outline: none;
+  z-index: 2;
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid var(--grid-line);
+  background: var(--header-bg);
+  min-height: 28px;
+}
+.tabs {
+  display: flex;
+  overflow-x: auto;
+}
+.tab {
+  border: none;
+  border-right: 1px solid var(--grid-line);
+  background: transparent;
+  color: inherit;
+  padding: 4px 14px;
+  font: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.tab:hover {
+  background: var(--vscode-toolbar-hoverBackground, rgba(128, 128, 128, 0.2));
+}
+.tab.on {
+  background: var(--vscode-editor-background);
+  border-bottom: 2px solid var(--accent);
+  font-weight: 600;
+}
+.tab.add {
+  font-size: 15px;
+  padding: 2px 12px;
+}
+.tab-input {
+  width: 120px;
+  font: inherit;
+  background: var(--vscode-input-background);
+  color: var(--vscode-input-foreground);
+  border: none;
+}
+.status {
+  padding: 0 10px;
+  opacity: 0.7;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.context-menu {
+  position: fixed;
+  z-index: 100;
+  min-width: 180px;
+  padding: 4px 0;
+  background: var(--vscode-menu-background, var(--vscode-editorWidget-background));
+  color: var(--vscode-menu-foreground, inherit);
+  border: 1px solid var(--vscode-menu-border, var(--grid-line));
+  border-radius: 5px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+}
+.context-menu .item {
+  padding: 4px 16px;
+  cursor: pointer;
+}
+.context-menu .item:hover {
+  background: var(--vscode-menu-selectionBackground, var(--accent));
+  color: var(--vscode-menu-selectionForeground, #fff);
+}
+.context-menu .sep {
+  height: 1px;
+  margin: 4px 0;
+  background: var(--vscode-menu-separatorBackground, var(--grid-line));
+}

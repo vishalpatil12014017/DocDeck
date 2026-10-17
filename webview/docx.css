@@ -1,0 +1,250 @@
+[hidden] {
+  display: none !important;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  background: var(--vscode-editor-background);
+  color: var(--vscode-foreground);
+  font-family: var(--vscode-font-family);
+  font-size: var(--vscode-font-size);
+}
+
+#app {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 10px;
+  padding: 5px 10px;
+  background: var(--vscode-editorWidget-background, var(--vscode-editor-background));
+  border-bottom: 1px solid var(--vscode-panel-border, rgba(128, 128, 128, 0.3));
+}
+.group {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+.group + .group {
+  padding-left: 10px;
+  border-left: 1px solid var(--vscode-panel-border, rgba(128, 128, 128, 0.3));
+}
+.tb-btn {
+  min-width: 28px;
+  height: 26px;
+  padding: 0 6px;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--vscode-foreground);
+  cursor: pointer;
+  font-size: 13px;
+}
+.tb-btn:hover {
+  background: var(--vscode-toolbar-hoverBackground, rgba(128, 128, 128, 0.2));
+}
+.tb-btn.on {
+  background: var(--vscode-inputOption-activeBackground, rgba(0, 120, 212, 0.3));
+  color: var(--vscode-inputOption-activeForeground, inherit);
+}
+.tb-btn.b {
+  font-weight: 700;
+}
+.tb-btn.i {
+  font-style: italic;
+}
+.tb-btn.u {
+  text-decoration: underline;
+}
+.tb-btn.s {
+  text-decoration: line-through;
+}
+
+select,
+input {
+  height: 26px;
+  box-sizing: border-box;
+  background: var(--vscode-input-background);
+  color: var(--vscode-input-foreground);
+  border: 1px solid var(--vscode-input-border, transparent);
+  border-radius: 3px;
+  font: inherit;
+  padding: 0 6px;
+}
+button {
+  font: inherit;
+}
+
+.inline-prompt,
+.notice {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  background: var(--vscode-editorWidget-background);
+  border-bottom: 1px solid var(--vscode-panel-border, rgba(128, 128, 128, 0.3));
+}
+.inline-prompt input {
+  flex: 1;
+  max-width: 420px;
+}
+.inline-prompt button,
+.notice button {
+  height: 24px;
+  border: 1px solid var(--vscode-button-border, transparent);
+  border-radius: 3px;
+  background: var(--vscode-button-secondaryBackground);
+  color: var(--vscode-button-secondaryForeground);
+  cursor: pointer;
+}
+.inline-prompt button.primary {
+  background: var(--vscode-button-background);
+  color: var(--vscode-button-foreground);
+}
+.notice {
+  background: var(--vscode-inputValidation-warningBackground, rgba(255, 200, 0, 0.15));
+  border: 1px solid var(--vscode-inputValidation-warningBorder, transparent);
+  border-radius: 4px;
+  max-width: 816px;
+  margin: 12px auto 0;
+  box-sizing: border-box;
+}
+
+.scroller {
+  flex: 1;
+  overflow: auto;
+  padding: 0 16px 40px;
+  background: var(--vscode-editorGroup-emptyBackground, var(--vscode-editor-background));
+}
+
+/* Paper look, matching Word's default US Letter width and margins. */
+.page {
+  max-width: 816px;
+  min-height: 1056px;
+  margin: 20px auto;
+  box-sizing: border-box;
+  background: #fff;
+  color: #1f1f1f;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+}
+.page .ProseMirror {
+  min-height: 1056px;
+  padding: 72px 80px;
+  box-sizing: border-box;
+  outline: none;
+  font-family: Calibri, 'Segoe UI', Carlito, Arial, sans-serif;
+  font-size: 11pt;
+  line-height: 1.5;
+}
+.ProseMirror p {
+  margin: 0 0 8pt;
+}
+.ProseMirror h1,
+.ProseMirror h2,
+.ProseMirror h3,
+.ProseMirror h4 {
+  color: #1f3864;
+  line-height: 1.25;
+  margin: 18pt 0 6pt;
+}
+.ProseMirror h1 {
+  font-size: 20pt;
+}
+.ProseMirror h2 {
+  font-size: 16pt;
+}
+.ProseMirror h3 {
+  font-size: 13pt;
+}
+.ProseMirror a {
+  color: #0563c1;
+}
+.ProseMirror blockquote {
+  margin: 0 0 8pt;
+  padding-left: 12px;
+  border-left: 3px solid #c8c8c8;
+  color: #555;
+}
+.ProseMirror code {
+  background: #f1f1f1;
+  border-radius: 3px;
+  padding: 1px 4px;
+  font-family: Consolas, Menlo, monospace;
+  font-size: 0.92em;
+}
+.ProseMirror pre {
+  background: #f6f6f6;
+  padding: 10px 12px;
+  border-radius: 4px;
+  overflow-x: auto;
+}
+.ProseMirror pre code {
+  background: none;
+  padding: 0;
+}
+.ProseMirror img {
+  max-width: 100%;
+  height: auto;
+}
+.ProseMirror img.ProseMirror-selectednode {
+  outline: 2px solid #0078d4;
+}
+.ProseMirror hr {
+  border: none;
+  border-top: 1px solid #bbb;
+  margin: 12pt 0;
+}
+.ProseMirror table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 0 0 8pt;
+  table-layout: fixed;
+  overflow: hidden;
+}
+.ProseMirror td,
+.ProseMirror th {
+  border: 1px solid #999;
+  padding: 4px 6px;
+  vertical-align: top;
+  position: relative;
+  min-width: 40px;
+}
+.ProseMirror th {
+  background: #f2f2f2;
+  font-weight: 600;
+  text-align: left;
+}
+.ProseMirror td > p,
+.ProseMirror th > p {
+  margin: 0;
+}
+.ProseMirror .selectedCell::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 120, 212, 0.15);
+  pointer-events: none;
+}
+.ProseMirror .column-resize-handle {
+  position: absolute;
+  right: -2px;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: #0078d4;
+  pointer-events: none;
+}
+.ProseMirror.resize-cursor {
+  cursor: col-resize;
+}
+.ProseMirror .tableWrapper {
+  overflow-x: auto;
+}

@@ -1,0 +1,193 @@
+{
+  "name": "docdeck",
+  "displayName": "DocDeck – PDF, Excel, Word, Markdown & Mermaid Viewer",
+  "description": "Open and edit PDF, Excel/CSV, Word (.docx), Markdown and Mermaid files right inside VS Code, Cursor and Antigravity.",
+  "version": "0.1.0",
+  "publisher": "vishalpatil",
+  "icon": "media/icon.png",
+  "engines": {
+    "vscode": "^1.90.0"
+  },
+  "categories": [
+    "Visualization",
+    "Other"
+  ],
+  "keywords": [
+    "pdf",
+    "excel",
+    "xlsx",
+    "csv",
+    "docx",
+    "word",
+    "markdown",
+    "wysiwyg",
+    "mermaid",
+    "viewer"
+  ],
+  "main": "./dist/extension.js",
+  "activationEvents": [],
+  "contributes": {
+    "customEditors": [
+      {
+        "viewType": "docdeck.pdf",
+        "displayName": "PDF Viewer",
+        "priority": "default",
+        "selector": [
+          {
+            "filenamePattern": "*.pdf"
+          }
+        ]
+      },
+      {
+        "viewType": "docdeck.sheet",
+        "displayName": "Spreadsheet Editor",
+        "priority": "default",
+        "selector": [
+          {
+            "filenamePattern": "*.xlsx"
+          },
+          {
+            "filenamePattern": "*.xlsm"
+          },
+          {
+            "filenamePattern": "*.xls"
+          },
+          {
+            "filenamePattern": "*.ods"
+          },
+          {
+            "filenamePattern": "*.csv"
+          },
+          {
+            "filenamePattern": "*.tsv"
+          }
+        ]
+      },
+      {
+        "viewType": "docdeck.docx",
+        "displayName": "Word Document Editor",
+        "priority": "default",
+        "selector": [
+          {
+            "filenamePattern": "*.docx"
+          }
+        ]
+      },
+      {
+        "viewType": "docdeck.markdown",
+        "displayName": "Markdown WYSIWYG Editor",
+        "priority": "option",
+        "selector": [
+          {
+            "filenamePattern": "*.md"
+          },
+          {
+            "filenamePattern": "*.markdown"
+          }
+        ]
+      },
+      {
+        "viewType": "docdeck.mermaid",
+        "displayName": "Mermaid Diagram Viewer",
+        "priority": "default",
+        "selector": [
+          {
+            "filenamePattern": "*.mmd"
+          },
+          {
+            "filenamePattern": "*.mermaid"
+          }
+        ]
+      }
+    ],
+    "commands": [
+      {
+        "command": "docdeck.openMarkdownEditor",
+        "title": "Open in WYSIWYG Editor",
+        "category": "DocDeck",
+        "icon": "$(preview)"
+      },
+      {
+        "command": "docdeck.openSource",
+        "title": "Open Source Text",
+        "category": "DocDeck",
+        "icon": "$(go-to-file)"
+      }
+    ],
+    "menus": {
+      "editor/title": [
+        {
+          "command": "docdeck.openMarkdownEditor",
+          "when": "resourceLangId == markdown && activeEditor == workbench.editors.files.textFileEditor",
+          "group": "navigation"
+        },
+        {
+          "command": "docdeck.openSource",
+          "when": "activeCustomEditorId == docdeck.markdown || activeCustomEditorId == docdeck.mermaid",
+          "group": "navigation"
+        }
+      ],
+      "explorer/context": [
+        {
+          "command": "docdeck.openMarkdownEditor",
+          "when": "resourceLangId == markdown",
+          "group": "navigation"
+        }
+      ],
+      "commandPalette": [
+        {
+          "command": "docdeck.openMarkdownEditor",
+          "when": "resourceLangId == markdown"
+        },
+        {
+          "command": "docdeck.openSource",
+          "when": "activeCustomEditorId == docdeck.markdown || activeCustomEditorId == docdeck.mermaid"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "DocDeck",
+      "properties": {
+        "docdeck.docx.confirmBeforeSave": {
+          "type": "boolean",
+          "default": true,
+          "description": "Warn before overwriting a .docx file, since saving rewrites it with simplified formatting."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "build": "node esbuild.mjs",
+    "watch": "node esbuild.mjs --watch",
+    "typecheck": "tsc --noEmit -p . && tsc --noEmit -p webview",
+    "package": "node esbuild.mjs --production && vsce package --no-dependencies --allow-missing-repository --skip-license",
+    "vscode:prepublish": "node esbuild.mjs --production"
+  },
+  "dependencies": {
+    "@milkdown/crepe": "^7.22.3",
+    "@milkdown/kit": "^7.22.3",
+    "@tiptap/core": "^3.32.0",
+    "@tiptap/extension-image": "^3.32.0",
+    "@tiptap/extension-link": "^3.32.0",
+    "@tiptap/extension-table": "^3.32.0",
+    "@tiptap/extension-table-cell": "^3.32.0",
+    "@tiptap/extension-table-header": "^3.32.0",
+    "@tiptap/extension-table-row": "^3.32.0",
+    "@tiptap/extension-text-align": "^3.32.0",
+    "@tiptap/extension-underline": "^3.32.0",
+    "@tiptap/pm": "^3.32.0",
+    "@tiptap/starter-kit": "^3.32.0",
+    "@turbodocx/html-to-docx": "^1.23.1",
+    "mammoth": "^1.13.0",
+    "mermaid": "^12.2.0",
+    "pdfjs-dist": "^6.4.299",
+    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.43",
+    "@types/vscode": "^1.90.0",
+    "@vscode/vsce": "^4.0.0",
+    "esbuild": "^0.25.12",
+    "typescript": "^5.9.3"
+  }
+}
