@@ -11,3 +11,4 @@ media/icon.svg
 media/logo-*.png
 test/**
 media/screenshots/**
+scripts/**

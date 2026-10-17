@@ -188,7 +188,7 @@
     "build": "node esbuild.mjs",
     "watch": "node esbuild.mjs --watch",
     "typecheck": "tsc --noEmit -p . && tsc --noEmit -p webview",
-    "package": "node esbuild.mjs --production && vsce package --no-dependencies",
+    "package": "node scripts/third-party-notices.mjs && node esbuild.mjs --production && vsce package --no-dependencies",
     "vscode:prepublish": "node esbuild.mjs --production"
   },
   "dependencies": {

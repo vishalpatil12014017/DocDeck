@@ -120,4 +120,6 @@ Press **F5** in VS Code to try your changes in an Extension Development Host. Th
 
 [MIT](LICENSE) © Vishal Patil
 
+Licenses of the bundled open-source packages are in [ThirdPartyNotices.txt](ThirdPartyNotices.txt).
+
 Built with [pdf.js](https://github.com/mozilla/pdf.js), [SheetJS CE](https://sheetjs.com), [mammoth](https://github.com/mwilliamson/mammoth.js), [html-to-docx](https://github.com/TurboDocx/html-to-docx), [Tiptap](https://tiptap.dev), [Milkdown](https://milkdown.dev), [CodeMirror](https://codemirror.net) and [Mermaid](https://mermaid.js.org).
